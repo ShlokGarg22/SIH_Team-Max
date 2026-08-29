@@ -1,0 +1,37 @@
+# =======================
+# Frontend (Next.js)
+# =======================
+# Note: Next.js generates its own .gitignore in the frontend/ folder, 
+# but we add these here just in case.
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# =======================
+# Backend (Python/FastAPI)
+# =======================
+backend/__pycache__/
+backend/.pytest_cache/
+backend/venv/
+backend/env/
+backend/.env
+backend/workbench.db
+*.pyc
+
+# =======================
+# Data & Vector DB
+# =======================
+data/
+chroma/
+.chroma/
+
+# =======================
+# OS & Editor Files
+# =======================
+.DS_Store
+.vscode/
+.idea/
