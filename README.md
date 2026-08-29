@@ -59,9 +59,9 @@ graph TD
     Data --> SQL[(SQLite)]
     Deep --> SQL
     RAG & Vis & Data & Deep & Rep --> Ollama[[Ollama Local Models]]
-    Rules>rules.md -.->|Context Injection| RAG & Vis & Data & Deep
+    Rules>rules.md] -.->|Context Injection| RAG & Vis & Data & Deep
 ```
 
-Lets say you want suggest some change in the architecture , creat a  file with proposed changes and log it properly there.
+Let's say you want to suggest some change in the architecture, create a file with the proposed changes and log it properly there.
 
 See `ARCHITECTURE_DESIGN.md` for the complete, detailed system blueprint.
