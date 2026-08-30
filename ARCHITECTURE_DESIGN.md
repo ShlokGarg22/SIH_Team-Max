@@ -58,6 +58,10 @@ To adhere to the "zero complex setup" requirement for laptops (no Docker needed 
     ```
 *   **Workflow:** The frontend Admin Portal edits this text file. Before an agent generates a response, it reads the relevant section of `rules.md` and appends it to its system prompt.
 
+### 3.4. Physical File Storage
+*   **Location:** `backend/data/uploads/`
+*   **Purpose:** While ChromaDB stores the mathematical vector embeddings of the text, the actual raw `.pdf`, `.csv`, and image files uploaded by users/admins must be securely saved to the local file system. This allows the Next.js frontend to provide a direct download link to the original document if an engineer needs to read it.
+
 ---
 
 ## 4. Agent Implementations & Contracts
@@ -102,14 +106,24 @@ To adhere to the "zero complex setup" requirement for laptops (no Docker needed 
 
 ---
 
-## 5. Admin Dashboard
-A dedicated route in the Next.js frontend (`/admin`).
-*   **Document Ingestion:** UI to upload PDFs. The backend parses them (PyPDF2), chunks them (LangChain RecursiveCharacterTextSplitter), embeds them, and saves to ChromaDB.
-*   **Rules Management:** A simple text editor UI to read and update the `rules.md` file.
+## 5. Main Chat Interface
+A dedicated route in the Next.js frontend (`/chat`).
+*   **Session Management:** Sidebar UI to create a "New Chat" (generating a fresh `session_id`) or view past historical chats stored in SQLite.
+*   **Deep Research Toggle:** A physical UI switch allowing the user to explicitly trigger the Deep Research state machine instead of a standard one-shot RAG answer.
+*   **Traceability Log & Streaming Protocol:** A real-time visual streaming component that shows the user exactly which agents are being routed to. The frontend consumes this data using **Server-Sent Events (SSE)** via FastAPI's `StreamingResponse`, eliminating perceived latency.
+*   **Multimodal File Uploads:** The chat input box supports `multipart/form-data` drag-and-drop file uploads (e.g., images of broken equipment or CSVs). The Next.js frontend sends the physical files to the backend for secure temporary storage before passing them to the Visual or Data agents.
 
 ---
 
-## 6. Folder Structure
+## 6. Admin Dashboard
+A dedicated route in the Next.js frontend (`/admin`). Protected by a hardcoded `.env` password (Basic Auth) to prevent unauthorized access by non-managers.
+*   **Document Ingestion:** UI to upload PDFs. The backend parses them (PyPDF2), chunks them (LangChain RecursiveCharacterTextSplitter), embeds them, and saves to ChromaDB.
+*   **Document Management:** UI to list all actively ingested PDFs and a "Delete" function. Deleting a document securely purges its specific vector embeddings from ChromaDB so the AI "forgets" the outdated SOP.
+*   **Rules Management:** A simple text editor UI to read, update, and temporarily toggle (on/off) rules in the `rules.md` file.
+
+---
+
+## 7. Folder Structure
 ```text
 workbench/
 ├── frontend/                  # Next.js UI
@@ -137,7 +151,7 @@ workbench/
 
 ---
 
-## 7. Development Phasing
+## 8. Development Phasing
 *   **Phase 1: Foundation:** Setup FastAPI, SQLite, Next.js. Create the `rules.md` file. 
 *   **Phase 2: RAG & Ingestion:** Integrate ChromaDB, build the Admin upload portal, and implement the RAG agent.
 *   **Phase 3: Tools & Execution:** Build the Data Analysis code executor and connect the Visual Agent to LLaVA via Ollama.
