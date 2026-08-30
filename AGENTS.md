@@ -26,4 +26,5 @@
 * **Agent Communication:** Agents must return structured JSON matching the defined Pydantic schemas in `backend/schemas/agent.py`.
 * **Deep Research:** Must be synchronous in the session.
 * **Sandboxing:** Native Python execution is allowed for data analysis (no Docker required for the prototype).
+
 * **Architecture:** Always read `ARCHITECTURE_DESIGN.md` if you need to understand the detailed system design, folder structure, or database strategy before writing new code.

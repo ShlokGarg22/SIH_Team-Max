@@ -12,7 +12,7 @@ Standard AI bots are "one prompt, one answer." Our **Deep Research Agent** uses 
 Instead of requiring expensive and complex LLM fine-tuning to correct AI behavior, our system introduces a novel **Shared Rules Engine**. When an engineer corrects an agent (e.g., *"Always prioritize the 2024 SOP over the 2023 version"*), the system extracts this rule and saves it to a persistent database. From that point on, *all* agents read that rule before answering, allowing the system to continuously learn and adapt to organizational standards in real-time.
 
 ## 5. Local, Air-Gapped Data Sandbox
-Sending proprietary Excel sheets or CSVs to external data analysis tools is a massive security violation in industrial sectors. Our **Data Analysis Agent** securely executes Python analysis scripts locally on the host machine, performing advanced mathematical calculations and generating charts without a single byte of data leaving the internal network.
+Sending proprietary Excel sheets or CSVs to external data analysis tools is a massive security violation in industrial sectors. Our **Data Analysis Agent** securely executes Python analysis scripts locally on the host machine, performing advanced mathematical calculations and generating charts without a single byte of data leaving the internal network.#
 
 ## 6. Multi-Modal Vision without Cloud GPUs
 Using lightweight vision models like **LLaVA** or **Moondream2**, the workbench can instantly analyze photographs of industrial equipment or scanned engineering diagrams completely locally, maintaining the strict air-gap while still providing state-of-the-art visual understanding.
