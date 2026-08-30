@@ -18,23 +18,34 @@ This file tracks the implementation progress of the Sovereign On-Premise Agentic
 - `[x]` Define core Pydantic agent schemas (`/backend/schemas/agent.py`).
 
 ## Phase 2: RAG & Document Ingestion
-- `[ ]` Setup ChromaDB connection and initialization.
-- `[ ]` Create PDF ingestion pipeline (PyPDF2 + Chunking).
-- `[ ]` Implement Hybrid Search (BM25 + Vector).
-- `[ ]` Build Admin Dashboard UI for document uploads.
+- `[ ]` **Database Initialization:** Setup `backend/services/vector_store.py` to initialize ChromaDB connection.
+- `[ ]` **PDF Parsing:** Implement PyPDF2 extraction logic in `backend/knowledge_base/parser.py`.
+- `[ ]` **Text Chunking:** Implement LangChain `RecursiveCharacterTextSplitter` for semantic chunking.
+- `[ ]` **Embedding Generation:** Setup CPU-optimized embeddings (e.g., `all-MiniLM-L6-v2`).
+- `[ ]` **Hybrid Search Logic:** Implement BM25 (keyword search) alongside Vector semantic search.
+- `[ ]` **API Endpoints:** Create FastAPI `POST /upload` endpoint for documents.
+- `[ ]` **Admin UI:** Build Next.js Admin Dashboard page for uploading SOPs and PDFs.
 
 ## Phase 3: Core Agents Implementation
-- `[ ]` Implement Orchestrator Agent (Intent classification & routing).
-- `[ ]` Implement RAG Agent (Ollama + ChromaDB).
-- `[ ]` Implement Data Analysis Agent (Native Python `exec` execution).
-- `[ ]` Implement Visual Agent (LLaVA multimodal integration).
+- `[ ]` **Ollama Connection:** Build `backend/services/llm_provider.py` to communicate with local Ollama API.
+- `[ ]` **Orchestrator Agent:** Implement intent classification to route user queries to the correct specialized agent.
+- `[ ]` **RAG Agent:** Implement prompt templates to feed retrieved ChromaDB chunks into Llama 3 for grounded answers.
+- `[ ]` **Data Analysis Agent:** Setup local Python `exec()` logic to securely load and analyze CSV/Excel data.
+- `[ ]` **Visual Agent:** Integrate LLaVA model for image processing and extract structured findings from equipment photos.
+- `[ ]` **Report Generation Agent:** Build logic to synthesize JSON findings from other agents into a professional markdown report.
+- `[ ]` **Chat API Endpoint:** Create FastAPI `POST /chat` endpoint to handle normal user conversations.
+- `[ ]` **Chat UI:** Build Next.js Chat interface with message history rendering.
+- `[ ]` **Traceability Log UI:** Build a visual component in the chat interface to display the step-by-step agent routing process (Explainable AI).
 
 ## Phase 4: Deep Research & Self-Improvement
-- `[ ]` Build LangGraph State Machine for Deep Research.
-- `[ ]` Implement frontend UI for real-time Deep Research streaming.
-- `[ ]` Create `rules.md` file and parsing logic for agents.
-- `[ ]` Build Admin Dashboard UI for rule editing and approval.
+- `[ ]` **State Database:** Create SQLAlchemy models for persistent `ResearchState`.
+- `[ ]` **LangGraph Setup:** Build the state machine workflow for Deep Research loops in `backend/agents/deep_research/`.
+- `[ ]` **Agent Tool Calling:** Give the Deep Research agent the ability to programmatically call the RAG, Visual, and Data agents.
+- `[ ]` **User Clarification Loops:** Implement logic for the AI to pause and ask the user clarifying questions.
+- `[ ]` **Streaming UI:** Upgrade Next.js frontend to support real-time Deep Research state visualization.
+- `[ ]` **Rules Engine:** Build parser in `backend/rules/` to read `rules.md` and inject it into system prompts.
+- `[ ]` **Feedback System:** Add Thumbs Up/Down UI to chat and logic to extract new rules from user feedback.
+- `[ ]` **Rules Dashboard:** Expand Admin Dashboard to allow editing, approving, and rejecting AI rules.
 
----
 
 *Note: Update this file as components are built to keep the whole team (and AI assistants) in sync.*

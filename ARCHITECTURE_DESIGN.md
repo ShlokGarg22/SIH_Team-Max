@@ -75,7 +75,7 @@ To adhere to the "zero complex setup" requirement for laptops (no Docker needed 
     5. Returns grounded answer with exact citations mapped to the chunk metadata.
 
 ### 4.3. Data Analysis Agent
-*   **Role:** Generates and executes Python code to analyze CSV/Excel files.
+*   **Role:** Generates and executes Python code to analyze CSV/Excel files.Create bar-graphs , pie-charts and more.
 *   **Implementation (No Sandbox):** To keep the laptop setup simple, the backend will use native Python `exec()` to run pandas scripts. 
 *   *Security Note:* This is acceptable because it is an entirely internal, on-premise tool used by trusted employees.
 
