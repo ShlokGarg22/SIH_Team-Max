@@ -73,11 +73,13 @@ export default function DocumentUpload({ onUploadSuccess, onCancel }: DocumentUp
 
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to upload document.";
       setUploadStatus({
         type: "error",
-        message: err.message || "Failed to upload document.",
+        message: errorMessage,
       });
+
     } finally {
       setIsUploading(false);
     }

@@ -21,8 +21,9 @@ export interface AgentRequest {
   task_id: string;
   session_id: string;
   agent_target: string;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   applied_rules?: Array<Record<string, string>>;
+
 }
 
 export interface AgentResponse {

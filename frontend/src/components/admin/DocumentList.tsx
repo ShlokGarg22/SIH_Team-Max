@@ -173,8 +173,9 @@ export default function DocumentList({
             <p className="text-xs text-zinc-400 mb-5 leading-normal">
               Are you sure you want to delete{" "}
               <span className="font-semibold text-zinc-200">
-                "{docs.find((d) => d.id === deletingId)?.filename}"
+                &quot;{docs.find((d) => d.id === deletingId)?.filename}&quot;
               </span>
+
               ? This will remove its vector embeddings from ChromaDB.
             </p>
 

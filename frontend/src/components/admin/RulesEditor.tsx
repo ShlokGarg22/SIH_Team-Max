@@ -80,11 +80,13 @@ export default function RulesEditor() {
         message: "Successfully saved configuration to rules.md.",
       });
       setTimeout(() => setSaveStatus({ type: null, message: "" }), 3500);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update rules configuration.";
       setSaveStatus({
         type: "error",
-        message: err.message || "Failed to update rules configuration.",
+        message: errorMessage,
       });
+
     } finally {
       setIsSaving(false);
     }
