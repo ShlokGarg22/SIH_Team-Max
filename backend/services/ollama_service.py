@@ -13,8 +13,8 @@ logger = logging.getLogger("OllamaService")
 logger.setLevel(logging.INFO)
 
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
-DEFAULT_VISION_MODEL = os.environ.get("OLLAMA_VISION_MODEL", "llava")
-DEFAULT_TEXT_MODEL = os.environ.get("OLLAMA_TEXT_MODEL", "llama3:8b")
+DEFAULT_VISION_MODEL = os.environ.get("OLLAMA_VISION_MODEL", "llava:7b")   # Architecture: LLaVA or Moondream2
+DEFAULT_TEXT_MODEL = os.environ.get("OLLAMA_TEXT_MODEL", "llama3:8b")      # Architecture: Llama-3-8B or Phi-3-Mini
 
 
 class OllamaServiceError(Exception):
