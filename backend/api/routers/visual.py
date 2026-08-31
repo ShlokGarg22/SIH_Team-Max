@@ -2,7 +2,11 @@ import os
 import uuid
 import shutil
 from typing import Optional, List
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
+try:
+    from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends  # type: ignore
+except ImportError:
+    pass
+
 
 from backend.schemas.agent import AgentResponse, VisualRequestPayload
 from backend.agents.visual_agent.visual_agent import VisualAgent

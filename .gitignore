@@ -1,37 +1,96 @@
-# =======================
-# Frontend (Next.js)
-# =======================
-# Note: Next.js generates its own .gitignore in the frontend/ folder, 
-# but we add these here just in case.
+# ==============================================================================
+# Sovereign AI Workbench (.gitignore)
+# ==============================================================================
+
+# Node.js & Frontend Dependencies
+node_modules/
+node_modules/**
+**/node_modules/
+**/node_modules/**
 frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+frontend/node_modules/**
+.next/
+.next/**
+**/.next/
+**/.next/**
+out/
+**/out/
+.vercel
+**/.vercel
 
-# =======================
-# Backend (Python/FastAPI)
-# =======================
-backend/__pycache__/
-backend/.pytest_cache/
+# Python Virtual Environments & Packages
+.venv
+.venv/
+.venv/**
+**/.venv
+**/.venv/
+**/.venv/**
+backend/.venv
+backend/.venv/
+backend/.venv/**
+venv/
+venv/**
+**/venv/
+**/venv/**
 backend/venv/
-backend/env/
-backend/.env
-backend/workbench.db
-*.pyc
+backend/venv/**
+env/
+**/env/
+*.egg-info/
+**/*.egg-info/
+dist/
+build/
 
-# =======================
-# Data & Vector DB
-# =======================
+# Python Bytecode & Caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Databases, Vector Store & Uploads
 data/
+**/data/*
+!**/data/.gitkeep
+backend/data/
+backend/data/*
+!backend/data/.gitkeep
 chroma/
+**/chroma/
 .chroma/
+**/.chroma/
+*.db
+*.sqlite
+*.sqlite3
 
-# =======================
-# OS & Editor Files
-# =======================
+# Environment Files & Secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor & OS Metadata
 .DS_Store
-.vscode/
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 .idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.swp
+*.swo

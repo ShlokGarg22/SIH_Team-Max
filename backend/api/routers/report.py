@@ -1,6 +1,10 @@
 import logging
 from typing import List, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends
+try:
+    from fastapi import APIRouter, HTTPException, Depends  # type: ignore
+except ImportError:
+    pass
+
 
 from backend.schemas.agent import ReportRequestPayload, ReportResult
 from backend.agents.report_agent.report_agent import ReportAgent
@@ -79,7 +83,10 @@ async def generate_report_html_endpoint(
     """
     Generates an executive-grade styled HTML report document.
     """
-    from fastapi.responses import HTMLResponse
+    try:
+        from fastapi.responses import HTMLResponse  # type: ignore
+    except ImportError:
+        pass
     try:
         html_content = agent.generate_html(payload)
         return HTMLResponse(content=html_content, status_code=200)
@@ -99,7 +106,11 @@ async def export_report_pdf_endpoint(
     """
     Generates and exports the report as a downloadable binary PDF document.
     """
-    from fastapi.responses import Response
+    try:
+        from fastapi.responses import Response  # type: ignore
+    except ImportError:
+        pass
+
     try:
         pdf_bytes = agent.export_pdf(payload)
         filename = f"report_{payload.equipment_id or 'asset'}.pdf".replace(" ", "_")

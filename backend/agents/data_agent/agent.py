@@ -1,12 +1,22 @@
 import os
 import re
-import pandas as pd
+try:
+    import pandas as pd  # type: ignore
+except ImportError:
+    pd = None  # type: ignore
+
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 
-from services.ollama_service import OllamaService
-from agents.data_agent.executor import execute_python_code, ExecutionResult
-from schemas.agent import AgentRequest, AgentResponse, Evidence
+try:
+    from backend.services.ollama_service import OllamaService
+    from backend.agents.data_agent.executor import execute_python_code, ExecutionResult
+    from backend.schemas.agent import AgentRequest, AgentResponse, Evidence
+except ImportError:
+    from services.ollama_service import OllamaService  # type: ignore
+    from agents.data_agent.executor import execute_python_code, ExecutionResult  # type: ignore
+    from schemas.agent import AgentRequest, AgentResponse, Evidence  # type: ignore
+
 
 
 class AgentAnalysisOutput(BaseModel):
@@ -161,13 +171,16 @@ class DataAnalysisAgent:
                 prompt_content += "\nWrite the Python code to perform this analysis:"
             else:
                 # Error Correction Prompt
+                dataset_section = f"Dataset Metadata & Sample:\n{dataset_info}\n" if dataset_info else ""
+                err_msg = last_exec_result.error if last_exec_result else "Unknown error"
+                tb_msg = last_exec_result.traceback if last_exec_result else ""
                 prompt_content = (
                     f"User Request: {query}\n"
-                    f"{f'Dataset Metadata & Sample:\n{dataset_info}\n' if dataset_info else ''}\n"
+                    f"{dataset_section}\n"
                     f"PREVIOUS ATTEMPT FAILED (Attempt {attempt - 1}/{max_attempts}):\n"
                     f"Failed Code:\n{last_code}\n\n"
-                    f"Execution Error Message:\n{last_exec_result.error if last_exec_result else 'Unknown error'}\n\n"
-                    f"Execution Traceback:\n{last_exec_result.traceback if last_exec_result else ''}\n\n"
+                    f"Execution Error Message:\n{err_msg}\n\n"
+                    f"Execution Traceback:\n{tb_msg}\n\n"
                     f"CORRECTION INSTRUCTIONS:\n"
                     f"- Fix the Python code to eliminate the error shown above.\n"
                     f"- Ensure column names match the dataset schema exactly.\n"
@@ -175,6 +188,7 @@ class DataAnalysisAgent:
                     f"- Follow all analytical rules (row-level math first, Matplotlib charts when requested).\n"
                     f"- Return ONLY executable Python code. Do not return Markdown. Do not explain your answer."
                 )
+
 
             # Call Ollama Service
             llm_res = self.ollama.generate(

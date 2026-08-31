@@ -6,8 +6,13 @@ import datetime
 import logging
 from typing import List, Optional, Dict, Any, Tuple
 
-from backend.schemas.agent import RuleSchema, FeedbackExtractionRequest, FeedbackExtractionResponse
-from backend.services.ollama_service import OllamaService
+try:
+    from backend.schemas.agent import RuleSchema, FeedbackExtractionRequest, FeedbackExtractionResponse
+    from backend.services.ollama_service import OllamaService
+except ImportError:
+    from schemas.agent import RuleSchema, FeedbackExtractionRequest, FeedbackExtractionResponse  # type: ignore
+    from services.ollama_service import OllamaService  # type: ignore
+
 
 logger = logging.getLogger("RulesEngine")
 logger.setLevel(logging.INFO)
@@ -239,10 +244,15 @@ class RulesEngine:
 
         return None
 
+    def update_rule_status(self, rule_id: str, status: str) -> Optional[RuleSchema]:
+        """Updates the status of a rule (e.g. 'approved', 'disabled', 'pending')."""
+        return self.update_rule(rule_id=rule_id, status=status)
+
     def toggle_rule(self, rule_id: str, active: bool) -> Optional[RuleSchema]:
         """Toggles a rule status between 'approved' and 'disabled'."""
         new_status = "approved" if active else "disabled"
         return self.update_rule(rule_id=rule_id, status=new_status)
+
 
     def delete_rule(self, rule_id: str) -> bool:
         """Removes a rule completely from rules.md."""

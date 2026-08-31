@@ -1,6 +1,10 @@
 import logging
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query, Body, Depends
+try:
+    from fastapi import APIRouter, HTTPException, Query, Body, Depends  # type: ignore
+except ImportError:
+    pass
+
 
 from backend.schemas.agent import (
     RuleSchema,

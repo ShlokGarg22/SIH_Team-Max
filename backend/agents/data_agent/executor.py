@@ -7,12 +7,21 @@ import contextlib
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 
-# Ensure Matplotlib operates in non-interactive/headless mode for server environments
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
+try:
+    import matplotlib  # type: ignore
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt  # type: ignore
+except ImportError:
+    matplotlib = None  # type: ignore
+    plt = None  # type: ignore
+
+try:
+    import pandas as pd  # type: ignore
+    import numpy as np  # type: ignore
+except ImportError:
+    pd = None  # type: ignore
+    np = None  # type: ignore
+
 
 
 class ExecutionResult(BaseModel):

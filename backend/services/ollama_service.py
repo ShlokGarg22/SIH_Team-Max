@@ -3,7 +3,11 @@ import base64
 import json
 import logging
 from typing import Optional, Dict, Any, List, Union
-import requests
+try:
+    import requests  # type: ignore
+except ImportError:
+    requests = None  # type: ignore
+
 
 logger = logging.getLogger("OllamaService")
 logger.setLevel(logging.INFO)

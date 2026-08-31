@@ -5,9 +5,15 @@ import uuid
 import logging
 from typing import List, Optional, Dict, Any, Union
 
-from backend.schemas.agent import AgentResponse, Evidence, VisualAnalysisResult
-from backend.services.ollama_service import OllamaService
-from backend.rules.engine import RulesEngine
+try:
+    from backend.schemas.agent import AgentResponse, Evidence, VisualAnalysisResult
+    from backend.services.ollama_service import OllamaService
+    from backend.rules.engine import RulesEngine
+except ImportError:
+    from schemas.agent import AgentResponse, Evidence, VisualAnalysisResult  # type: ignore
+    from services.ollama_service import OllamaService  # type: ignore
+    from rules.engine import RulesEngine  # type: ignore
+
 
 logger = logging.getLogger("VisualAgent")
 logger.setLevel(logging.INFO)

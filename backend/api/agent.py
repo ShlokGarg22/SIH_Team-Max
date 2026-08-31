@@ -1,6 +1,15 @@
-from fastapi import APIRouter, HTTPException
-from schemas.agent import AgentRequest, AgentResponse
-from agents.orchestrator.router import Orchestrator
+try:
+    from fastapi import APIRouter, HTTPException  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from backend.schemas.agent import AgentRequest, AgentResponse
+    from backend.agents.orchestrator.router import Orchestrator
+except ImportError:
+    from schemas.agent import AgentRequest, AgentResponse  # type: ignore
+    from agents.orchestrator.router import Orchestrator  # type: ignore
+
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 orchestrator = Orchestrator()
