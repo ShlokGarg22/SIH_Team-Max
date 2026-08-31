@@ -51,6 +51,10 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Empty scaffold __init__.py files (not needed in Python 3.3+ namespace packages)
+# If a module needs explicit __init__.py, add it deliberately with real content
+**/__init__.py
+
 # Local Databases, Vector Store & Uploads
 data/
 **/data/*
