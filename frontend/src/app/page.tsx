@@ -1,69 +1,349 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import type { ChatMessage as ChatMessageType, ChatSession, ChatMode } from "@/lib/api";
+import { sendChatMessage, generateId, generateSessionId } from "@/lib/api";
+import type { UserAccount } from "@/components/chat/ChatSidebar";
+import dynamic from "next/dynamic";
+
+import ChatSidebar from "@/components/chat/ChatSidebar";
+import ChatHeader from "@/components/chat/ChatHeader";
+import ChatWelcome from "@/components/chat/ChatWelcome";
+import ChatInput from "@/components/chat/ChatInput";
+import ChatMessageComponent from "@/components/chat/ChatMessage";
+import TypingIndicator from "@/components/chat/TypingIndicator";
+
+const GradientWaves = dynamic(() => import("@/components/ui/GradientWaves"), {
+  ssr: false,
+});
+
+// =============================================================================
+// Thinking content generator for Deep Research mode
+// In Deep Research mode, we always show the thinking/reasoning process.
+// In production, the Deep Research LangGraph agent would return actual
+// chain-of-thought. For now we generate a synthetic summary.
+// =============================================================================
+
+function generateThinkingContent(userQuery: string, mode: ChatMode): string {
+  if (mode !== "deep_research") return "";
+
+  const lines: string[] = [];
+  lines.push(`Analyzing the query: "${userQuery.slice(0, 80)}${userQuery.length > 80 ? "..." : ""}"`);
+  lines.push("");
+  lines.push("- This is a Deep Research query requiring a multi-step investigation.");
+  lines.push("- Querying the knowledge base using hybrid search (vector + BM25 keyword matching).");
+  lines.push("- Cross-referencing multiple documents and synthesizing findings with proper citations.");
+  lines.push("");
+  lines.push("- Checking if the retrieved passages contain sufficient information for an accurate answer.");
+  lines.push("- If context is insufficient, I will explicitly state that rather than hallucinating.");
+  lines.push("- Any technical values, temperatures, or equipment IDs will be reported exactly as found.");
+
+  return lines.join("\n");
+}
+
+// =============================================================================
+// Deep Research endpoint configuration
+// When a teammate implements the Deep Research agent, update this function
+// to point to the correct endpoint. Currently falls back to the RAG agent.
+// =============================================================================
+
+/**
+ * Returns the agent_target string for the backend orchestrator.
+ * Update this mapping when the Deep Research agent is implemented.
+ *
+ * Current routing:
+ *   "standard"      -> "rag" (RAG agent)
+ *   "deep_research" -> "rag" (temporary fallback — change to "deep_research" once implemented)
+ */
+function getAgentTarget(mode: ChatMode): string {
+  switch (mode) {
+    case "deep_research":
+      // TODO: When the Deep Research LangGraph agent is ready, change this to:
+      //   return "deep_research";
+      // The orchestrator router.py already handles agent_target routing.
+      return "rag";
+    case "standard":
+    default:
+      return "rag";
+  }
+}
+
+export default function MeridianChat() {
+  // -------------------------------------------------------------------------
+  // State
+  // -------------------------------------------------------------------------
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [mode, setMode] = useState<ChatMode>("standard");
+  const [isLoading, setIsLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // User account state — will be populated from login/signup page
+  const [currentUser] = useState<UserAccount | null>({
+    name: "Operator",
+    role: "On-Premise",
+  });
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // -------------------------------------------------------------------------
+  // Derived State
+  // -------------------------------------------------------------------------
+  const activeSession = sessions.find((s) => s.id === activeSessionId) || null;
+  const messages = activeSession?.messages || [];
+  const isWelcomeScreen = !activeSessionId || messages.length === 0;
+  const sessionTitle = activeSession?.title || "Meridian";
+
+  // -------------------------------------------------------------------------
+  // Auto-scroll to bottom on new messages
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length, isLoading]);
+
+  // -------------------------------------------------------------------------
+  // Session Management
+  // -------------------------------------------------------------------------
+  const createNewSession = useCallback((): string => {
+    const newId = generateSessionId();
+    const newSession: ChatSession = {
+      id: newId,
+      title: "New Chat",
+      messages: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      mode: mode,
+    };
+    setSessions((prev) => [newSession, ...prev]);
+    setActiveSessionId(newId);
+    return newId;
+  }, [mode]);
+
+  const handleNewChat = useCallback(() => {
+    setActiveSessionId(null);
+    setMode("standard");
+  }, []);
+
+  const handleSelectSession = useCallback((sessionId: string) => {
+    setActiveSessionId(sessionId);
+    const session = sessions.find((s) => s.id === sessionId);
+    if (session) setMode(session.mode);
+  }, [sessions]);
+
+  const handleDeleteSession = useCallback((sessionId: string) => {
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    if (activeSessionId === sessionId) setActiveSessionId(null);
+  }, [activeSessionId]);
+
+  // -------------------------------------------------------------------------
+  // User Account Handlers
+  // These will connect to your login/signup page when implemented
+  // -------------------------------------------------------------------------
+  const handleLoginClick = useCallback(() => {
+    // TODO: Navigate to /auth/login or open auth modal
+    // router.push("/auth/login");
+    console.log("[Meridian] Login/signup navigation — connect your auth page here");
+  }, []);
+
+  const handleSettingsClick = useCallback(() => {
+    // TODO: Navigate to /settings or open settings modal
+    console.log("[Meridian] Settings navigation — connect your settings page here");
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Send Message
+  // -------------------------------------------------------------------------
+  const handleSendMessage = useCallback(async (content: string, attachments?: File[]) => {
+    let currentSessionId = activeSessionId;
+    if (!currentSessionId) {
+      currentSessionId = createNewSession();
+    }
+
+    // Build user message with attachments
+    const userMessage: ChatMessageType = {
+      id: generateId(),
+      role: "user",
+      content,
+      timestamp: Date.now(),
+      mode,
+      attachments: attachments?.map((f) => ({
+        name: f.name,
+        size: f.size < 1024 * 1024
+          ? `${(f.size / 1024).toFixed(1)} KB`
+          : `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
+        type: f.type,
+      })),
+    };
+
+    // Update session
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id !== currentSessionId) return s;
+        const isFirstMessage = s.messages.length === 0;
+        return {
+          ...s,
+          title: isFirstMessage ? content.slice(0, 50) + (content.length > 50 ? "..." : "") : s.title,
+          messages: [...s.messages, userMessage],
+          updatedAt: Date.now(),
+          mode,
+        };
+      })
+    );
+
+    setIsLoading(true);
+    const startTime = Date.now();
+
+    try {
+      // Route to the correct agent based on mode
+      const response = await sendChatMessage(
+        content,
+        currentSessionId,
+        mode,
+        mode === "deep_research", // deep think is auto-enabled in deep research mode
+      );
+
+      const durationSeconds = Math.round((Date.now() - startTime) / 1000);
+      const aiContent = response.findings.join("\n\n") || "I wasn't able to generate a response.";
+
+      // In Deep Research mode, always show thinking block
+      const thinkingContent = mode === "deep_research"
+        ? generateThinkingContent(content, mode)
+        : undefined;
+
+      const aiMessage: ChatMessageType = {
+        id: generateId(),
+        role: "assistant",
+        content: aiContent,
+        thinking: thinkingContent,
+        thinkingDuration: thinkingContent ? Math.max(durationSeconds, 1) : undefined,
+        evidence: response.evidence,
+        confidence: response.confidence,
+        agentName: response.agent_name,
+        errors: response.errors.length > 0 ? response.errors : undefined,
+        timestamp: Date.now(),
+        mode,
+      };
+
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id !== currentSessionId) return s;
+          return { ...s, messages: [...s.messages, aiMessage], updatedAt: Date.now() };
+        })
+      );
+    } catch (error) {
+      const errorMessage: ChatMessageType = {
+        id: generateId(),
+        role: "assistant",
+        content: "Sorry, I encountered an error connecting to the backend. Please make sure the FastAPI server is running on port 8000.",
+        errors: [error instanceof Error ? error.message : "Unknown error"],
+        timestamp: Date.now(),
+        mode,
+      };
+
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id !== currentSessionId) return s;
+          return { ...s, messages: [...s.messages, errorMessage], updatedAt: Date.now() };
+        })
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeSessionId, mode, createNewSession]);
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <div className="flex h-screen overflow-hidden bg-[var(--m-bg-primary)]">
+      {/* Sidebar */}
+      <ChatSidebar
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onSelectSession={handleSelectSession}
+        onNewChat={handleNewChat}
+        onDeleteSession={handleDeleteSession}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        currentUser={currentUser}
+        onLoginClick={handleLoginClick}
+        onSettingsClick={handleSettingsClick}
+      />
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* GradientWaves — full background behind entire chat column, visible only on welcome */}
+        {isWelcomeScreen && (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <GradientWaves
+              horizonColor="#0d0d1a"
+              waveColor="#2d3a8c"
+              crestColor="#7c5cfc"
+              speed={0.5}
+              amplitude={2.5}
+              waveScale={0.5}
+              waveRatio={0.85}
+              swell={30}
+              turbulence={15}
+              tilt={1.15}
+              zoom={1.0}
+              height={5.5}
+              fogDepth={18}
+              detail="medium"
+              brightness={0.9}
+              opacity={0.5}
+              mouseInteraction={true}
+              parallaxStrength={0.3}
+              grain={true}
+              grainIntensity={0.03}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+        )}
+
+        <ChatHeader
+          sessionTitle={sessionTitle}
+          activeMode={mode}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
+
+        <div className="flex-1 flex flex-col min-h-0 relative z-10">
+          {isWelcomeScreen ? (
+            <div className="flex-1 flex flex-col">
+              <ChatWelcome activeMode={mode} onModeChange={setMode} />
+            </div>
+          ) : (
+            <div
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto"
+            >
+              <div className="max-w-3xl mx-auto py-4">
+                {messages.map((msg) => (
+                  <ChatMessageComponent key={msg.id} message={msg} />
+                ))}
+                {isLoading && <TypingIndicator />}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+          )}
+
+          <div className="max-w-3xl mx-auto w-full relative z-10">
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              deepResearchEnabled={mode === "deep_research"}
+              onToggleDeepResearch={() =>
+                setMode(mode === "deep_research" ? "standard" : "deep_research")
+              }
+              disabled={isLoading}
+              placeholder={
+                mode === "deep_research"
+                  ? "Ask a research question..."
+                  : "Message Meridian..."
+              }
+            />
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

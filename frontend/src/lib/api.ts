@@ -1,4 +1,5 @@
-// Frontend API client for Sovereign On-Premise Agentic AI Workbench
+// Meridian — Frontend API Client
+// Connects to the Sovereign AI Workbench FastAPI backend
 
 declare const process: { env?: Record<string, string | undefined> };
 
@@ -6,9 +7,9 @@ export const API_BASE_URL =
   (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) ||
   "http://localhost:8000";
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 // TypeScript Interfaces (matching backend/schemas/agent.py)
-// -----------------------------------------------------------------------------
+// =============================================================================
 
 export interface Evidence {
   source: string;
@@ -23,7 +24,6 @@ export interface AgentRequest {
   agent_target: string;
   payload: Record<string, unknown>;
   applied_rules?: Array<Record<string, string>>;
-
 }
 
 export interface AgentResponse {
@@ -58,9 +58,45 @@ export interface HealthCheckResponse {
   service: string;
 }
 
-// -----------------------------------------------------------------------------
-// Helper for HTTP Requests
-// -----------------------------------------------------------------------------
+// =============================================================================
+// Chat-Specific Types
+// =============================================================================
+
+export type ChatMode = "standard" | "deep_research";
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  thinking?: string; // XAI reasoning content (Explainable AI / Deep Think)
+  thinkingDuration?: number; // seconds the "thinking" took
+  evidence?: Evidence[];
+  confidence?: number;
+  agentName?: string;
+  errors?: string[];
+  timestamp: number;
+  mode: ChatMode;
+  attachments?: ChatAttachment[];
+}
+
+export interface ChatAttachment {
+  name: string;
+  size: string;
+  type: string;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+  mode: ChatMode;
+}
+
+// =============================================================================
+// Helper
+// =============================================================================
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -72,13 +108,12 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-// -----------------------------------------------------------------------------
-// Supported Backend API Functions
-// -----------------------------------------------------------------------------
+// =============================================================================
+// Backend API Functions
+// =============================================================================
 
 /**
  * Checks backend health status.
- * Target Endpoint: GET /health
  */
 export async function checkHealth(): Promise<HealthCheckResponse> {
   const res = await fetch(`${API_BASE_URL}/health`, {
@@ -89,8 +124,7 @@ export async function checkHealth(): Promise<HealthCheckResponse> {
 }
 
 /**
- * Sends a standardized AgentRequest to the backend Orchestrator/Agents.
- * Target Endpoint: POST /api/agent/run
+ * Sends a standardized AgentRequest to the backend Orchestrator.
  */
 export async function runAgentTask(
   request: AgentRequest
@@ -103,13 +137,65 @@ export async function runAgentTask(
   return handleResponse<AgentResponse>(res);
 }
 
-// -----------------------------------------------------------------------------
-// Admin UI Backend Endpoint Status Note
-// -----------------------------------------------------------------------------
-// Currently, the following backend endpoints for Admin UI are pending backend creation:
-// 1. POST /api/admin/upload (Document Upload)
-// 2. GET /api/admin/documents (List Documents)
-// 3. DELETE /api/admin/documents/{id} (Delete Document)
-// 4. GET /api/admin/rules (Fetch Rules)
-// 5. POST /api/admin/rules (Update Rules)
-// Once implemented in backend/api/admin.py, corresponding client functions will be connected.
+/**
+ * Sends a chat message through the orchestrator and returns the agent response.
+ * Routes to the correct agent based on the current chat mode.
+ */
+export async function sendChatMessage(
+  message: string,
+  sessionId: string,
+  mode: ChatMode = "standard",
+  deepThinkEnabled: boolean = false,
+): Promise<AgentResponse> {
+  const taskId = `task_chat_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`;
+
+  // Route to the appropriate agent based on mode
+  const agentTarget = mode === "deep_research" ? "rag" : "rag";
+
+  const request: AgentRequest = {
+    task_id: taskId,
+    session_id: sessionId,
+    agent_target: agentTarget,
+    payload: {
+      query: message,
+      prompt: message,
+      mode: mode,
+      deep_think: deepThinkEnabled,
+      hybrid_search: true,
+    },
+  };
+
+  return runAgentTask(request);
+}
+
+/**
+ * Directly queries the RAG agent endpoint (bypasses orchestrator).
+ */
+export async function queryRAGAgent(
+  query: string,
+  hybridSearch: boolean = true,
+  contextFiles?: string[],
+): Promise<AgentResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/agents/rag/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query,
+      hybrid_search: hybridSearch,
+      context_files: contextFiles || [],
+    }),
+  });
+  return handleResponse<AgentResponse>(res);
+}
+
+// =============================================================================
+// Utility: Generate unique IDs
+// =============================================================================
+
+export function generateId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+export function generateSessionId(): string {
+  return `session-${generateId()}`;
+}

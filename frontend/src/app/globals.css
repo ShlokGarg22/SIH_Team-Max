@@ -1,26 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* ===========================================================================
+   MERIDIAN — Design System (Dark Theme)
+   Inspired by DeepSeek's near-black aesthetic with blue accents
+   =========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --m-bg-primary: #0d0d0f;
+  --m-bg-secondary: #141417;
+  --m-bg-tertiary: #1a1a1f;
+  --m-bg-surface: #1e1e24;
+  --m-bg-hover: #252530;
+  --m-bg-input: #1c1c22;
+
+  --m-border: #2a2a35;
+  --m-border-subtle: #222230;
+  --m-border-active: #3b82f6;
+
+  --m-text-primary: #e8e8ed;
+  --m-text-secondary: #9898a8;
+  --m-text-tertiary: #6b6b7b;
+  --m-text-muted: #50505e;
+
+  --m-accent: #4f7bf7;
+  --m-accent-hover: #6390ff;
+  --m-accent-glow: rgba(79, 123, 247, 0.15);
+  --m-accent-subtle: rgba(79, 123, 247, 0.08);
+
+  --m-thinking-bg: #16161c;
+  --m-thinking-border: #2d2d3a;
+  --m-thinking-accent: #7c5cfc;
+
+  --m-success: #34d399;
+  --m-warning: #fbbf24;
+  --m-error: #f87171;
+
+  --m-sidebar-width: 260px;
+  --m-sidebar-collapsed: 0px;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  --background: #0d0d0f;
+  --foreground: #e8e8ed;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===========================================================================
+   Base Styles
+   =========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--m-bg-primary);
+  color: var(--m-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===========================================================================
+   Custom Scrollbar (thin, dark, matching DeepSeek)
+   =========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--m-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--m-text-muted);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--m-border) transparent;
+}
+
+/* ===========================================================================
+   Thinking Block Animations
+   =========================================================================== */
+
+@keyframes thinking-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes thinking-expand {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 2000px;
+    opacity: 1;
+  }
+}
+
+@keyframes thinking-collapse {
+  from {
+    max-height: 2000px;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+.thinking-icon {
+  animation: thinking-pulse 2s ease-in-out infinite;
+}
+
+.thinking-content-enter {
+  animation: thinking-expand 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+.thinking-content-exit {
+  animation: thinking-collapse 0.2s ease-in forwards;
+  overflow: hidden;
+}
+
+/* ===========================================================================
+   Typing Indicator
+   =========================================================================== */
+
+@keyframes typing-dot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.typing-dot:nth-child(1) { animation: typing-dot 1.4s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.4s ease-in-out 0.2s infinite; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.4s ease-in-out 0.4s infinite; }
+
+/* ===========================================================================
+   Markdown Content Rendering
+   =========================================================================== */
+
+.markdown-content h1 { font-size: 1.5rem; font-weight: 700; margin: 1.25rem 0 0.75rem; color: var(--m-text-primary); }
+.markdown-content h2 { font-size: 1.25rem; font-weight: 700; margin: 1rem 0 0.5rem; color: var(--m-text-primary); }
+.markdown-content h3 { font-size: 1.1rem; font-weight: 600; margin: 0.875rem 0 0.5rem; color: var(--m-text-primary); }
+.markdown-content h4 { font-size: 1rem; font-weight: 600; margin: 0.75rem 0 0.375rem; color: var(--m-text-secondary); }
+
+.markdown-content p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+  color: var(--m-text-primary);
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin: 0.25rem 0;
+  line-height: 1.6;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--m-text-primary);
+}
+
+.markdown-content code {
+  background: var(--m-bg-tertiary);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--m-accent);
+}
+
+.markdown-content pre {
+  background: var(--m-bg-secondary);
+  border: 1px solid var(--m-border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+  color: var(--m-text-primary);
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--m-accent);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--m-text-secondary);
+  font-style: italic;
+}
+
+.markdown-content a {
+  color: var(--m-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-content a:hover {
+  color: var(--m-accent-hover);
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--m-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.markdown-content th {
+  background: var(--m-bg-tertiary);
+  font-weight: 600;
+}
+
+/* ===========================================================================
+   Sidebar Transitions
+   =========================================================================== */
+
+.sidebar-transition {
+  transition: width 0.2s ease, transform 0.2s ease;
+}
+
+/* ===========================================================================
+   Mode Pill Styles
+   =========================================================================== */
+
+.mode-pill {
+  transition: all 0.2s ease;
+}
+
+.mode-pill:hover {
+  transform: translateY(-1px);
+}
+
+.mode-pill-active {
+  box-shadow: 0 0 20px rgba(79, 123, 247, 0.2);
+}
+
+/* ===========================================================================
+   Send Button Glow
+   =========================================================================== */
+
+.send-btn-active {
+  box-shadow: 0 0 16px rgba(79, 123, 247, 0.3);
+  transition: all 0.15s ease;
+}
+
+.send-btn-active:hover {
+  box-shadow: 0 0 24px rgba(79, 123, 247, 0.4);
 }
