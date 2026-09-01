@@ -256,7 +256,7 @@ export default function MeridianChat() {
   // Render
   // -------------------------------------------------------------------------
   return (
-    <div className="flex h-full h-[100dvh] overflow-hidden bg-[var(--m-bg-primary)]">
+    <div className="flex h-screen w-screen overflow-hidden bg-[var(--m-bg-primary)]">
       {/* Sidebar */}
       <ChatSidebar
         sessions={sessions}

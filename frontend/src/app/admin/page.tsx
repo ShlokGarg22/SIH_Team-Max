@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="flex h-full h-[100dvh] bg-[var(--m-bg-primary)] text-[var(--m-text-primary)] font-sans overflow-hidden">
+    <div className="flex h-screen w-screen bg-[var(--m-bg-primary)] text-[var(--m-text-primary)] font-sans overflow-hidden">
       {/* ============================================================ */}
       {/* SIDEBAR — Mirrors ChatSidebar structure exactly              */}
       {/* ============================================================ */}
