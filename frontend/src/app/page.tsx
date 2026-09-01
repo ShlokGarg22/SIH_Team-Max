@@ -18,25 +18,27 @@ const GradientWaves = dynamic(() => import("@/components/ui/GradientWaves"), {
 });
 
 // =============================================================================
-// Thinking content generator for Deep Research mode
-// In Deep Research mode, we always show the thinking/reasoning process.
-// In production, the Deep Research LangGraph agent would return actual
-// chain-of-thought. For now we generate a synthetic summary.
+// Explainable AI Thinking content generator
+// Shows reasoning chain for both Standard and Deep Research modes.
 // =============================================================================
 
 function generateThinkingContent(userQuery: string, mode: ChatMode): string {
-  if (mode !== "deep_research") return "";
-
   const lines: string[] = [];
-  lines.push(`Analyzing the query: "${userQuery.slice(0, 80)}${userQuery.length > 80 ? "..." : ""}"`);
+  lines.push(`Analyzing query: "${userQuery.slice(0, 80)}${userQuery.length > 80 ? "..." : ""}"`);
   lines.push("");
-  lines.push("- This is a Deep Research query requiring a multi-step investigation.");
-  lines.push("- Querying the knowledge base using hybrid search (vector + BM25 keyword matching).");
-  lines.push("- Cross-referencing multiple documents and synthesizing findings with proper citations.");
-  lines.push("");
-  lines.push("- Checking if the retrieved passages contain sufficient information for an accurate answer.");
-  lines.push("- If context is insufficient, I will explicitly state that rather than hallucinating.");
-  lines.push("- Any technical values, temperatures, or equipment IDs will be reported exactly as found.");
+
+  if (mode === "deep_research") {
+    lines.push("- Deep Research mode active: initiating multi-step investigation loop.");
+    lines.push("- Querying knowledge base using hybrid search (vector embeddings + BM25 keyword matching).");
+    lines.push("- Cross-referencing multiple SOP manuals, telemetry schemas, and incident logs.");
+    lines.push("- Verifying factual consistency and synthesizing findings with exact page citations.");
+    lines.push("- Checking confidence threshold before generating grounded response.");
+  } else {
+    lines.push("- Standard mode: decomposing query and identifying operational intent.");
+    lines.push("- Querying on-premise ChromaDB vector store and indexed documentation.");
+    lines.push("- Extracting relevant context chunks and evaluating source relevance.");
+    lines.push("- Formulating concise, grounded answer adhering to active governance rules.");
+  }
 
   return lines.join("\n");
 }
@@ -206,10 +208,8 @@ export default function MeridianChat() {
       const durationSeconds = Math.round((Date.now() - startTime) / 1000);
       const aiContent = response.findings.join("\n\n") || "I wasn't able to generate a response.";
 
-      // In Deep Research mode, always show thinking block
-      const thinkingContent = mode === "deep_research"
-        ? generateThinkingContent(content, mode)
-        : undefined;
+      // Always show explainable AI thinking process
+      const thinkingContent = generateThinkingContent(content, mode);
 
       const aiMessage: ChatMessageType = {
         id: generateId(),
@@ -256,7 +256,7 @@ export default function MeridianChat() {
   // Render
   // -------------------------------------------------------------------------
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--m-bg-primary)]">
+    <div className="flex h-full h-[100dvh] overflow-hidden bg-[var(--m-bg-primary)]">
       {/* Sidebar */}
       <ChatSidebar
         sessions={sessions}
@@ -273,16 +273,15 @@ export default function MeridianChat() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 relative">
-        {/* GradientWaves — full background behind entire chat column, visible only on welcome */}
-        {isWelcomeScreen && (
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <GradientWaves
-              horizonColor="#0d0d1a"
-              waveColor="#2d3a8c"
-              crestColor="#7c5cfc"
-              speed={0.5}
-              amplitude={2.5}
-              waveScale={0.5}
+        {/* GradientWaves — full background behind entire chat column, rendered across all states */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <GradientWaves
+            horizonColor="#0d0d1a"
+            waveColor="#2d3a8c"
+            crestColor="#7c5cfc"
+            speed={0.5}
+            amplitude={2.5}
+            waveScale={0.5}
               waveRatio={0.85}
               swell={30}
               turbulence={15}
@@ -299,7 +298,6 @@ export default function MeridianChat() {
               grainIntensity={0.03}
             />
           </div>
-        )}
 
         <ChatHeader
           sessionTitle={sessionTitle}

@@ -14,6 +14,22 @@ interface AdminSidebarProps {
   healthStatus?: string;
 }
 
+/* Meridian compass logo — matches ChatSidebar */
+function MeridianLogo({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2" opacity="0.3" />
+      <circle cx="24" cy="24" r="14" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      <path d="M24 4V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M24 28V44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <path d="M4 24H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <path d="M28 24H44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <circle cx="24" cy="24" r="4" fill="currentColor" />
+      <path d="M24 10L27 20H21L24 10Z" fill="currentColor" opacity="0.8" />
+    </svg>
+  );
+}
+
 export default function AdminSidebar({
   activeTab,
   onSelectTab,
@@ -29,31 +45,28 @@ export default function AdminSidebar({
       {mobileOpen && (
         <div
           onClick={onToggleMobile}
-          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-xs md:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-black/60 md:hidden transition-opacity"
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-zinc-800 bg-zinc-950 text-zinc-300 p-3.5 transition-all duration-200 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-[var(--m-border)] bg-[var(--m-bg-secondary)] text-[var(--m-text-secondary)] p-3.5 transition-all duration-200 ease-in-out md:static md:translate-x-0 shadow-[4px_0_16px_rgba(0,0,0,0.3)] ${
           mobileOpen ? "translate-x-0 w-60" : "-translate-x-full md:translate-x-0"
         } ${isCollapsed && !mobileOpen ? "md:w-16" : "md:w-60"}`}
       >
         <div>
-          {/* Header & Logo */}
-          <div className="flex items-center justify-between px-1 py-1 mb-5 border-b border-zinc-800/80 pb-3">
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              {/* Gradient Logo Accent */}
-              <div className="h-7 w-7 rounded-md bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center text-white font-black text-xs shrink-0 shadow-md shadow-indigo-500/20">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+          {/* Header & Meridian Logo */}
+          <div className="flex items-center justify-between px-1 py-1 mb-5 border-b border-[var(--m-border-subtle)] pb-3">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--m-accent)] to-[#7c5cfc] flex items-center justify-center text-white shrink-0 shadow-md shadow-[var(--m-accent)]/20">
+                <MeridianLogo className="w-5 h-5" />
               </div>
 
               {(!isCollapsed || mobileOpen) && (
                 <div className="truncate">
-                  <h1 className="font-bold text-xs text-zinc-100 leading-tight tracking-tight">AI Workbench</h1>
-                  <p className="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">ADMIN PORTAL</p>
+                  <h1 className="text-xl font-bold text-[var(--m-text-primary)] leading-tight tracking-tight">Meridian</h1>
+                  <p className="text-[10px] text-[var(--m-accent)] font-semibold tracking-wider uppercase">Admin Portal</p>
                 </div>
               )}
             </div>
@@ -62,7 +75,7 @@ export default function AdminSidebar({
             <button
               onClick={onToggleCollapse}
               title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              className="hidden md:flex p-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors"
+              className="hidden md:flex p-1 rounded-md text-[var(--m-text-muted)] hover:bg-[var(--m-bg-hover)] hover:text-[var(--m-text-secondary)] transition-colors cursor-pointer"
             >
               <svg
                 className={`w-3.5 h-3.5 transform transition-transform duration-200 ${
@@ -77,7 +90,7 @@ export default function AdminSidebar({
             </button>
 
             {/* Close Button (Mobile) */}
-            <button onClick={onToggleMobile} className="md:hidden text-zinc-400 hover:text-zinc-100 p-1">
+            <button onClick={onToggleMobile} className="md:hidden text-[var(--m-text-muted)] hover:text-[var(--m-text-primary)] p-1 cursor-pointer">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -93,15 +106,15 @@ export default function AdminSidebar({
                 if (mobileOpen) onToggleMobile();
               }}
               title="Dashboard"
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-semibold transition-all group ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all group cursor-pointer ${
                 activeTab === "dashboard"
-                  ? "bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-xs"
-                  : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200"
+                  ? "bg-[var(--m-accent)]/10 text-[var(--m-accent)] border-l-2 border-[var(--m-accent)]"
+                  : "text-[var(--m-text-secondary)] hover:bg-[var(--m-bg-hover)] hover:text-[var(--m-text-primary)]"
               } ${isCollapsed && !mobileOpen ? "justify-center" : ""}`}
             >
               <svg
                 className={`w-4 h-4 shrink-0 transition-colors ${
-                  activeTab === "dashboard" ? "text-indigo-400" : "text-zinc-500 group-hover:text-zinc-300"
+                  activeTab === "dashboard" ? "text-[var(--m-accent)]" : "text-[var(--m-text-muted)] group-hover:text-[var(--m-text-secondary)]"
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -119,15 +132,15 @@ export default function AdminSidebar({
                 if (mobileOpen) onToggleMobile();
               }}
               title="Documents"
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-semibold transition-all group ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all group cursor-pointer ${
                 activeTab === "documents"
-                  ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 shadow-xs"
-                  : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200"
+                  ? "bg-[var(--m-accent)]/10 text-[var(--m-accent)] border-l-2 border-[var(--m-accent)]"
+                  : "text-[var(--m-text-secondary)] hover:bg-[var(--m-bg-hover)] hover:text-[var(--m-text-primary)]"
               } ${isCollapsed && !mobileOpen ? "justify-center" : ""}`}
             >
               <svg
                 className={`w-4 h-4 shrink-0 transition-colors ${
-                  activeTab === "documents" ? "text-cyan-400" : "text-zinc-500 group-hover:text-zinc-300"
+                  activeTab === "documents" ? "text-[var(--m-accent)]" : "text-[var(--m-text-muted)] group-hover:text-[var(--m-text-secondary)]"
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -145,15 +158,15 @@ export default function AdminSidebar({
                 if (mobileOpen) onToggleMobile();
               }}
               title="Rules"
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-semibold transition-all group ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all group cursor-pointer ${
                 activeTab === "rules"
-                  ? "bg-violet-500/10 text-violet-300 border border-violet-500/20 shadow-xs"
-                  : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200"
+                  ? "bg-[#7c5cfc]/10 text-[#7c5cfc] border-l-2 border-[#7c5cfc]"
+                  : "text-[var(--m-text-secondary)] hover:bg-[var(--m-bg-hover)] hover:text-[var(--m-text-primary)]"
               } ${isCollapsed && !mobileOpen ? "justify-center" : ""}`}
             >
               <svg
                 className={`w-4 h-4 shrink-0 transition-colors ${
-                  activeTab === "rules" ? "text-violet-400" : "text-zinc-500 group-hover:text-zinc-300"
+                  activeTab === "rules" ? "text-[#7c5cfc]" : "text-[var(--m-text-muted)] group-hover:text-[var(--m-text-secondary)]"
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -164,24 +177,37 @@ export default function AdminSidebar({
               </svg>
               {(!isCollapsed || mobileOpen) && <span className="truncate">Rules</span>}
             </button>
+
+            {/* Back to Chat Link */}
+            <div className="pt-2 mt-2 border-t border-[var(--m-border-subtle)]">
+              <a
+                href="/"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-[var(--m-text-muted)] hover:bg-[var(--m-bg-hover)] hover:text-[var(--m-text-primary)] transition-all cursor-pointer"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                {(!isCollapsed || mobileOpen) && <span className="truncate">Back to Chat</span>}
+              </a>
+            </div>
           </nav>
         </div>
 
         {/* Footer Area */}
-        <div className="pt-3 border-t border-zinc-800 space-y-2">
+        <div className="pt-3 border-t border-[var(--m-border-subtle)] space-y-2">
           {(!isCollapsed || mobileOpen) ? (
-            <div className="px-2.5 py-1.5 rounded-md bg-zinc-900/70 border border-zinc-800 flex items-center justify-between">
-              <span className="text-[11px] font-medium text-zinc-400">FastAPI</span>
+            <div className="px-2.5 py-1.5 rounded-lg bg-[var(--m-bg-surface)] border border-[var(--m-border)] flex items-center justify-between">
+              <span className="text-[11px] font-medium text-[var(--m-text-muted)]">FastAPI</span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold ${
                   healthStatus === "Connected"
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    ? "bg-[var(--m-success)]/10 text-[var(--m-success)] border border-[var(--m-success)]/20"
+                    : "bg-[var(--m-warning)]/10 text-[var(--m-warning)] border border-[var(--m-warning)]/20"
                 }`}
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    healthStatus === "Connected" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                    healthStatus === "Connected" ? "bg-[var(--m-success)] animate-pulse" : "bg-[var(--m-warning)]"
                   }`}
                 />
                 {healthStatus}
@@ -190,11 +216,11 @@ export default function AdminSidebar({
           ) : (
             <div
               title={`FastAPI Status: ${healthStatus}`}
-              className="flex items-center justify-center p-1.5 rounded-md bg-zinc-900 border border-zinc-800"
+              className="flex items-center justify-center p-1.5 rounded-lg bg-[var(--m-bg-surface)] border border-[var(--m-border)]"
             >
               <span
                 className={`h-2 w-2 rounded-full ${
-                  healthStatus === "Connected" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                  healthStatus === "Connected" ? "bg-[var(--m-success)] animate-pulse" : "bg-[var(--m-warning)]"
                 }`}
               />
             </div>
@@ -207,11 +233,11 @@ export default function AdminSidebar({
               }
             }}
             title="Logout"
-            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition-colors border border-transparent hover:border-red-500/20 ${
+            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[var(--m-text-muted)] hover:bg-[var(--m-error)]/10 hover:text-[var(--m-error)] transition-colors border border-transparent hover:border-[var(--m-error)]/20 cursor-pointer ${
               isCollapsed && !mobileOpen ? "justify-center" : ""
             }`}
           >
-            <svg className="w-4 h-4 shrink-0 text-zinc-400 hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             {(!isCollapsed || mobileOpen) && <span className="truncate">Logout</span>}

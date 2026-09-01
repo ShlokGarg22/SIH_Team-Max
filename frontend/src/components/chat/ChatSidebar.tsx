@@ -98,13 +98,20 @@ export default function ChatSidebar({
     <div className="flex flex-col h-full bg-[var(--m-bg-secondary)]">
       {/* Header: Logo + New Chat */}
       <div className="p-3 pb-2">
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-2 py-1.5 mb-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--m-accent)] to-[#7c5cfc] flex items-center justify-center text-white">
+        {/* Logo — Clickable to route to welcome page (clean without hover box) */}
+        <button
+          onClick={() => {
+            onNewChat();
+            onClose();
+          }}
+          className="flex items-center gap-3 px-2 py-1.5 mb-3 text-left cursor-pointer select-none"
+          title="Return to Welcome Screen"
+        >
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--m-accent)] to-[#7c5cfc] flex items-center justify-center text-white shrink-0 shadow-md shadow-[var(--m-accent)]/20">
             <MeridianLogo className="w-5.5 h-5.5" />
           </div>
           <span className="text-xl font-bold text-[var(--m-text-primary)] tracking-tight">Meridian</span>
-        </div>
+        </button>
 
         {/* New Chat Button */}
         <button

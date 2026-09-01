@@ -37,35 +37,7 @@ export default function ChatHeader({
           {sessionTitle}
         </h2>
 
-        {/* Mode badge */}
-        {sessionTitle !== "Meridian" && (
-          <span
-            className={`
-              shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1
-              ${
-                activeMode === "deep_research"
-                  ? "bg-[#7c5cfc]/15 text-[#a78bfa] border border-[#7c5cfc]/20"
-                  : "bg-[var(--m-accent-subtle)] text-[var(--m-accent)] border border-[var(--m-accent)]/15"
-              }
-            `}
-          >
-            {activeMode === "deep_research" ? (
-              <>
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Research
-              </>
-            ) : (
-              <>
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Standard
-              </>
-            )}
-          </span>
-        )}
+
       </div>
 
       <div className="flex items-center gap-2" />

@@ -21,6 +21,21 @@ function PaperclipIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   );
 }
 
+function MeridianLogo({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2" opacity="0.3" />
+      <circle cx="24" cy="24" r="14" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      <path d="M24 4V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M24 28V44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <path d="M4 24H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <path d="M28 24H44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      <circle cx="24" cy="24" r="4" fill="currentColor" />
+      <path d="M24 10L27 20H21L24 10Z" fill="currentColor" opacity="0.8" />
+    </svg>
+  );
+}
+
 /* ---- Markdown Renderer ---- */
 function renderMarkdown(text: string): React.ReactNode {
   if (!text) return null;
@@ -216,8 +231,8 @@ export default function ChatMessage({ message }: { message: ChatMessageType }) {
   // Assistant message
   return (
     <div className="flex items-start gap-3 px-4 py-3 group">
-      <div className="shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-[var(--m-accent)] to-[#7c5cfc] flex items-center justify-center mt-0.5">
-        <span className="text-white text-xs font-bold">M</span>
+      <div className="shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--m-accent)] to-[#7c5cfc] flex items-center justify-center mt-0.5 text-white shadow-sm shadow-[var(--m-accent)]/25">
+        <MeridianLogo className="w-4.5 h-4.5 text-white" />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -236,21 +251,20 @@ export default function ChatMessage({ message }: { message: ChatMessageType }) {
 
         <div className="flex items-center gap-3 mt-2">
           <span className="text-[10px] text-[var(--m-text-muted)]">{timeStr}</span>
-          {message.confidence !== undefined && (
-            <span className="flex items-center gap-1 text-[10px] text-[var(--m-text-muted)]">
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                message.confidence >= 0.7 ? "bg-[var(--m-success)]" :
-                message.confidence >= 0.4 ? "bg-[var(--m-warning)]" :
-                "bg-[var(--m-error)]"
-              }`} />
-              {Math.round(message.confidence * 100)}%
-            </span>
-          )}
           <button
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--m-text-muted)] hover:text-[var(--m-text-secondary)] text-xs flex items-center gap-1 cursor-pointer"
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md text-[var(--m-text-muted)] hover:text-[var(--m-text-primary)] hover:bg-[var(--m-bg-hover)] cursor-pointer flex items-center justify-center"
+            title={copied ? "Copied" : "Copy output"}
           >
-            {copied ? "Copied" : "Copy"}
+            {copied ? (
+              <svg className="w-3.5 h-3.5 text-[var(--m-success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            )}
           </button>
         </div>
       </div>

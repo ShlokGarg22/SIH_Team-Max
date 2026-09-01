@@ -63,9 +63,16 @@
 
 html {
   color-scheme: dark;
+  height: 100%;
+  height: 100dvh;
 }
 
 body {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   background: var(--m-bg-primary);
   color: var(--m-text-primary);
   font-family: var(--font-sans);
